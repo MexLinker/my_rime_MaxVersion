@@ -123,4 +123,6 @@ if (-not $NoApi) {
   Register-EngineEvent PowerShell.Exiting -Action { try { Stop-Job -Job $apiJob -Force } catch {} } | Out-Null
 }
 
-pnpm run dev -- --port $Port
+$env:PORT = "$Port"
+$env:VITE_PORT = "$Port"
+pnpm run dev

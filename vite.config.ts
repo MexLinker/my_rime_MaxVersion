@@ -57,7 +57,6 @@ const plugins = [
 
 if (process.env.NODE_ENV !== 'production') {
   const watchFiles = [
-    'worker.ts',
     'schema-files.json',
     'schema-name.json',
     'schema-target.json',
@@ -81,6 +80,7 @@ export default defineConfig({
   base: '',
   plugins,
   server: {
+    port: Number(process.env.PORT || process.env.VITE_PORT || 5173),
     watch: {
       ignored: ['**/boost/**', '**/build/**', '**/dist/**', '**/librime/**', '**/scripts/**', '**/wasm/**'],
     },

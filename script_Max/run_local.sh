@@ -180,4 +180,7 @@ fi
 
 echo "==> Starting Vite dev server on port ${PORT}..."
 echo "    Open http://localhost:${PORT}/ after server starts."
-exec pnpm run dev -- --port "${PORT}"
+# Pass port via environment so vite.config.ts can read it reliably
+export PORT="${PORT}"
+export VITE_PORT="${PORT}"
+exec pnpm run dev

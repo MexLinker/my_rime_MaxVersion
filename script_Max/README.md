@@ -76,5 +76,9 @@ PowerShell -ExecutionPolicy Bypass -File .\script_Max\run_local.ps1 -China
   3. Then `pnpm run dev` or `pnpm run build` to produce `dist/`.
 
 ## Troubleshooting
-- If the input candidates don’t show, your browser may be unable to download runtime or schema assets from the CDN. Use `--proxy 127.0.0.1:7890` or configure a system/browser proxy, then reload.
+- If you see `RollupError: Could not resolve "../schema-name.json" from "src/worker.ts"`, the local worker build ran but schema index JSON files were not generated. For the demo path we rely on the prebuilt `public/worker.js` and do not auto-build the worker. If you intend to build locally, run `pnpm run native && pnpm run schema && pnpm run wasm && pnpm run worker` first.
+- If the dev server port does not match your `--port`, the script now sets `PORT`/`VITE_PORT` env vars and Vite reads them to honor your port. Re-run with `--port` and it should reflect correctly.
+- If the input candidates don’t show, your browser may be unable to download runtime or schema assets from the CDN. Use `--china` / `-China`, or set `--proxy 127.0.0.1:7890` and reload.
 - Check the browser console/network panel for blocked requests to `@libreservice/my-rime` or `@rime-contrib`.
+
+More details in `script_Max/TROUBLESHOOTING.md`.
