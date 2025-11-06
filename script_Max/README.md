@@ -81,4 +81,9 @@ PowerShell -ExecutionPolicy Bypass -File .\script_Max\run_local.ps1 -China
 - If the input candidates don’t show, your browser may be unable to download runtime or schema assets from the CDN. Use `--china` / `-China`, or set `--proxy 127.0.0.1:7890` and reload.
 - Check the browser console/network panel for blocked requests to `@libreservice/my-rime` or `@rime-contrib`.
 
-More details in `script_Max/TROUBLESHOOTING.md`.
+More details in `script_Max/TROUBLESHOOTING.md` and `script_Max/TROUBLESHOOTING_2.md`.
+
+Optional: enable worker auto-build only when needed
+- By default, dev does not auto-run the worker build to avoid errors when schema JSON files are absent.
+- To opt-in, set `RUN_WORKER=1` in your environment. Example:
+  - `RUN_WORKER=1 PORT=5042 pnpm run dev`

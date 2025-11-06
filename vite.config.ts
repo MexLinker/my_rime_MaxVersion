@@ -55,7 +55,8 @@ const plugins = [
   vue()
 ]
 
-if (process.env.NODE_ENV !== 'production') {
+// Only enable worker auto-build when explicitly requested
+if (process.env.NODE_ENV !== 'production' && process.env.RUN_WORKER === '1') {
   const watchFiles = [
     'schema-files.json',
     'schema-name.json',
