@@ -37,7 +37,7 @@
     "test:chromium": "playwright test --browser chromium --fully-parallel test/",
     "test:firefox": "playwright test --browser firefox --fully-parallel test/",
     "test:webkit": "playwright test --browser webkit --fully-parallel test/",
-    "preview": "vite preview --host"
+  "preview": "vite preview --host"
   },
   "devDependencies": {
     "@codemirror/language": "^6.10.2",

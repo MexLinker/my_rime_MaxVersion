@@ -75,6 +75,7 @@ if [[ "${SKIP_INSTALL}" != "true" ]]; then
 fi
 
 echo "==> Approving esbuild postinstall (required by Vite/Rollup)..."
+echo "    Command: pnpm approve-builds esbuild"
 pnpm approve-builds esbuild || true
 
 WORKER_PATH="public/worker.js"

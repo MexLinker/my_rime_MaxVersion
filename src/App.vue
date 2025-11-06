@@ -11,6 +11,7 @@ import {
 import { MyLayout, MyHeader, MyFooter } from '@libreservice/my-widget'
 import MyPwa from './components/MyPwa.vue'
 import { homepage, appName } from '../package.json'
+ 
 
 const osThemeRef = useOsTheme()
 </script>

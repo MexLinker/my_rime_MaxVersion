@@ -21,6 +21,7 @@ import {
   syncOptions
 } from '../control'
 import { isMobile, getTextarea } from '../util'
+import { appendSelectAllSnapshot } from '../simpleDb'
 
 const props = defineProps<{
   debugMode?: boolean
@@ -52,6 +53,21 @@ const editing = ref<boolean>(false)
 const showMenu = ref<boolean>(false)
 const xOverflow = ref<boolean>(false)
 const exclusiveShift = ref<boolean>(false)
+
+// Avoid duplicate snapshots when both keydown and keyup fire
+let lastSnapshot: { text: string, ts: number } | null = null
+function snapshotSelectAll () {
+  const textarea = getTextarea()
+  if (document.activeElement !== textarea) return
+  const current = text.value
+  if (!current) return
+  const now = Date.now()
+  if (lastSnapshot && lastSnapshot.text === current && now - lastSnapshot.ts < 500) {
+    return
+  }
+  appendSelectAllSnapshot(current)
+  lastSnapshot = { text: current, ts: now }
+}
 
 async function debug (e: KeyboardEvent, rimeKey: string) {
   editing.value = true
@@ -218,7 +234,24 @@ function onKeydown (e: KeyboardEvent) {
     return
   }
   const { code, key } = e
+  // Always allow native select-all; schedule snapshot after highlight
+  if ((e.ctrlKey || e.metaKey) && key.toLowerCase() === 'a') {
+    requestAnimationFrame(() => snapshotSelectAll())
+    return
+  }
   const textarea = getTextarea()
+  const isNativeTextShortcut = () => {
+    const hasControl = e.getModifierState('Control')
+    const hasMeta = e.getModifierState('Meta')
+    const hasAlt = e.getModifierState('Alt')
+    const hasShift = e.getModifierState('Shift')
+    const k = key.toLowerCase()
+    return (hasControl || hasMeta) && !hasAlt && !hasShift && ['a', 'c', 'x', 'v', 'z', 'y'].includes(k)
+  }
+  // Always let browser handle common text shortcuts like Ctrl/⌘+A/C/X/V/Z/Y
+  if (isNativeTextShortcut()) {
+    return
+  }
   // begin: code specific to Android Chromium
   if (key === 'Unidentified') {
     androidChromium = true
@@ -299,6 +332,20 @@ function onKeyup (e: KeyboardEvent) {
     return
   }
   const { key } = e
+  // Fallback snapshot in case keydown was missed
+  if ((e.ctrlKey || e.metaKey) && key.toLowerCase() === 'a') {
+    setTimeout(() => snapshotSelectAll(), 0)
+    return
+  }
+  const textarea = getTextarea()
+  const hasControl = e.getModifierState('Control')
+  const hasMeta = e.getModifierState('Meta')
+  const hasAlt = e.getModifierState('Alt')
+  const hasShift = e.getModifierState('Shift')
+  const isNativeTextShortcut = (hasControl || hasMeta) && !hasAlt && !hasShift && ['a', 'c', 'x', 'v', 'z', 'y'].includes(key.toLowerCase())
+  if (isNativeTextShortcut) {
+    return
+  }
   if (key === 'Shift' && exclusiveShift.value) {
     changeLanguage()
   }
@@ -365,8 +412,8 @@ function onMouseupOrTouchend () {
 }
 
 onMounted(() => {
-  document.addEventListener('keydown', onKeydown)
-  document.addEventListener('keyup', onKeyup)
+  document.addEventListener('keydown', onKeydown, { capture: true })
+  document.addEventListener('keyup', onKeyup, { capture: true })
   document.addEventListener('mousemove', onMousemove)
   document.addEventListener('touchmove', onTouchmove)
   document.addEventListener('mouseup', onMouseupOrTouchend)
@@ -374,8 +421,8 @@ onMounted(() => {
 })
 
 onUnmounted(() => { // Cleanup for HMR
-  document.removeEventListener('keydown', onKeydown)
-  document.removeEventListener('keyup', onKeyup)
+  document.removeEventListener('keydown', onKeydown, { capture: true })
+  document.removeEventListener('keyup', onKeyup, { capture: true })
   document.removeEventListener('mousemove', onMousemove)
   document.removeEventListener('touchmove', onTouchmove)
   document.removeEventListener('mouseup', onMouseupOrTouchend)

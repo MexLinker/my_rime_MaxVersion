@@ -45,6 +45,7 @@ const autoCopy = savedBooleanRef(AUTO_COPY, false)
 const FORCE_VERTICAL = 'forceVertical'
 const forceVertical = savedBooleanRef(FORCE_VERTICAL, false)
 
+
 const schemaId = ref<string>(schemas[0].id)
 const ime = ref<string>('') // visual vs internal
 
@@ -85,6 +86,22 @@ const defaultSelectOptions: (
 )[] = []
 
 const selectOptions = ref<typeof defaultSelectOptions>([])
+
+// Limit available IMEs to the requested set only
+const ALLOWED_SCHEMA_IDS = new Set<string>(['double_pinyin_flypy', 'luna_pinyin'])
+function filterAllowedOptions (options: typeof defaultSelectOptions) {
+  const flattened: { label: string, value: string }[] = []
+  for (const opt of options) {
+    if ('children' in opt) {
+      for (const child of opt.children) {
+        flattened.push(child)
+      }
+    } else {
+      flattened.push(opt)
+    }
+  }
+  return flattened.filter(item => ALLOWED_SCHEMA_IDS.has(item.value))
+}
 
 type Variants = {
   id: string,
@@ -270,9 +287,16 @@ async function init () {
   }
   const _schemaId = getQueryOrStoredString('schemaId')
   const variantName = getQueryOrStoredString('variantName')
-  selectOptions.value = defaultSelectOptions
+  // Only show allowed schemas in the menu
+  // Note: keeping defaultSelectOptions for internal state, but UI shows filtered list
+  //       to preserve only 小鹤双拼 and 朙月拼音
+  //       (double_pinyin_flypy and luna_pinyin)
+  // @ts-ignore
+  selectOptions.value = filterAllowedOptions(defaultSelectOptions)
   deployed.value = false
-  schemaId.value = _schemaId in schemaVariants ? _schemaId : schemas[0].id
+  const fallbackId = 'luna_pinyin'
+  const candidateId = _schemaId in schemaVariants ? _schemaId : schemas[0].id
+  schemaId.value = ALLOWED_SCHEMA_IDS.has(candidateId) ? candidateId : fallbackId
   for (let i = 0; i < variants.value.length; ++i) {
     if (variants.value[i].name === variantName) {
       variantIndex.value = i
