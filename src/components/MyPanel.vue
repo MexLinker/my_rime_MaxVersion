@@ -65,7 +65,7 @@ function snapshotSelectAll () {
   if (lastSnapshot && lastSnapshot.text === current && now - lastSnapshot.ts < 500) {
     return
   }
-  appendSelectAllSnapshot(current)
+  void appendSelectAllSnapshot(current)
   lastSnapshot = { text: current, ts: now }
 }
 

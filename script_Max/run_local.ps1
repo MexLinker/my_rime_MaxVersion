@@ -2,7 +2,9 @@ Param(
   [string]$Proxy,
   [switch]$SkipInstall,
   [switch]$RefreshWorker,
-  [int]$Port = 5173
+  [int]$Port = 5173,
+  [int]$ApiPort = 8787,
+  [switch]$NoApi
 )
 
 Set-StrictMode -Version Latest
@@ -12,12 +14,15 @@ $ErrorActionPreference = 'Stop'
 # - Installs dependencies
 # - Approves esbuild postinstall
 # - Downloads prebuilt worker.js
+# - Starts API server (server/index.ts)
 # - Starts Vite dev server
 #
 # Examples:
 #   .\script_Max\run_local.ps1
 #   .\script_Max\run_local.ps1 -Proxy "127.0.0.1:7890"
 #   .\script_Max\run_local.ps1 -SkipInstall -Port 5180
+#   .\script_Max\run_local.ps1 -ApiPort 9000
+#   .\script_Max\run_local.ps1 -NoApi
 #   .\script_Max\run_local.ps1 -RefreshWorker
 
 $ScriptDir = Split-Path -Path $MyInvocation.MyCommand.Path -Parent
@@ -62,5 +67,25 @@ if ($Proxy) {
 
 Write-Host "==> Starting Vite dev server on port $Port..." -ForegroundColor Cyan
 Write-Host "    Open http://localhost:$Port/ after server starts." -ForegroundColor DarkGray
+
+if (-not $NoApi) {
+  Write-Host "==> Starting API server on port $ApiPort..." -ForegroundColor Cyan
+  # Start in background job to keep dev server foreground
+  $env:API_PORT = "$ApiPort"
+  $apiJob = Start-Job -ScriptBlock { pnpm run api }
+  # Simple health check loop (up to ~10s)
+  $healthy = $false
+  for ($i = 0; $i -lt 20; $i++) {
+    try {
+      Invoke-WebRequest -UseBasicParsing -Uri "http://localhost:$ApiPort/api/health" -TimeoutSec 2 | Out-Null
+      $healthy = $true
+      break
+    } catch {}
+    Start-Sleep -Milliseconds 500
+  }
+  if ($healthy) { Write-Host "==> API server is healthy." -ForegroundColor DarkGray } else { Write-Warning "API health check did not pass, continuing..." }
+  # Stop API on exit
+  Register-EngineEvent PowerShell.Exiting -Action { try { Stop-Job -Job $apiJob -Force } catch {} } | Out-Null
+}
 
 pnpm run dev -- --port $Port

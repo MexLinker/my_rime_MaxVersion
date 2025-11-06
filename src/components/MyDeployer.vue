@@ -7,6 +7,7 @@ import {
   selectOptions,
   setLoading
 } from '../control'
+import { toEnglishSchemaLabel } from '../control'
 import { getQueryOrStoredString } from '../util'
 
 const notification = useNotification()
@@ -45,7 +46,7 @@ worker.control('deployStatus', async (status: 'start' | 'failure' | 'success', s
         }[]
         for (const schema of schemasJson) {
           selectOptions.value.push({
-            label: schema.name,
+            label: toEnglishSchemaLabel(schema.id),
             value: schema.id
           })
         }

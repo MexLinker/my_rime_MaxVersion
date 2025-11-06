@@ -12,6 +12,26 @@ All computation is performed in browser, thanks to Web Assembly.
 
 It's also a [PWA](https://web.dev/progressive-web-apps/), so you can install it like a native App and use it **OFFLINE**.
 
+## Quick Start (Dev)
+- Requirements: Node 18+, `pnpm` 10+
+- Install deps: `pnpm install`
+- Start the local API (for history storage): `pnpm run api` (default port `8787`)
+- Start the dev server: `pnpm run dev` (default port `5173`)
+
+Or use the helper scripts (macOS/Linux and Windows):
+- macOS/Linux: `./script_Max/run_local.sh` (options: `--port`, `--api-port`, `--no-api`)
+- Windows (PowerShell): `PowerShell -ExecutionPolicy Bypass -File .\script_Max\run_local.ps1` (options: `-Port`, `-ApiPort`, `-NoApi`)
+
+The dev server proxies `/api` to the local API, so browser requests like `/api/history` work without CORS hassles.
+
+### Server-side History (Dev-only convenience)
+- When running the local API, input history snapshots persist to `server/data/history.json`.
+- Endpoints:
+  - `GET /api/history` — list snapshots
+  - `POST /api/history` — append `{ text }`
+  - `DELETE /api/history` — clear all
+- In production, the app remains a static site. The API is only used for local development convenience.
+
 ## Documentation
 If you want to distribute your own IME, see [customize](doc/customize.md).
 

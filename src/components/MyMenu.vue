@@ -74,7 +74,7 @@ function onSelectIME (value: string) {
         secondary
         @click="changeLanguage"
       >
-        {{ isEnglish ? 'En' : '中' }}
+        {{ isEnglish ? 'EN' : 'ZH' }}
       </n-button>
       <n-button
         secondary
@@ -96,14 +96,14 @@ function onSelectIME (value: string) {
         :disabled="extendedDisabled"
         @click="changeCharset"
       >
-        {{ extendedDisabled ? '' : isExtendedCharset ? '增' : '常' }}
+        {{ extendedDisabled ? '' : isExtendedCharset ? 'Extended' : 'Basic' }}
       </n-button>
       <n-button
         secondary
         :disabled="isEnglish"
         @click="changePunctuation"
       >
-        {{ isEnglishPunctuation ? '.' : '。' }}
+        {{ isEnglishPunctuation ? 'ASCII' : 'CJK' }}
       </n-button>
       <n-button
         secondary

@@ -103,6 +103,45 @@ function filterAllowedOptions (options: typeof defaultSelectOptions) {
   return flattened.filter(item => ALLOWED_SCHEMA_IDS.has(item.value))
 }
 
+// English labels for schemas; fallback to id to keep UI English
+const SCHEMA_EN_LABEL: { [key: string]: string } = {
+  luna_pinyin: 'Luna Pinyin',
+  luna_pinyin_fluency: 'Luna Pinyin · Fluency',
+  double_pinyin: 'Double Pinyin (Ziranma)',
+  double_pinyin_abc: 'Double Pinyin (Smart ABC)',
+  double_pinyin_flypy: 'Xiaohe Double Pinyin',
+  double_pinyin_mspy: 'Double Pinyin (Microsoft)',
+  double_pinyin_pyjj: 'Double Pinyin (Pinyin Jiajia)',
+  wubi86: 'Wubi 86',
+  wubi_pinyin: 'Wubi 86 · Pinyin',
+  wubi_trad: 'Wubi 86 · Traditional',
+  pinyin_simp: 'Pocket Simplified Pinyin',
+  terra_pinyin: 'Terra Pinyin',
+  ipa_xsampa: 'X-SAMPA',
+  ipa_yunlong: 'Yunlong IPA',
+  bopomofo: 'Zhuyin',
+  bopomofo_express: 'Zhuyin · Express',
+  combo_pinyin: 'Combo Pinyin · Seven Keys',
+  zyenpheng: 'Middle Chinese · Full Pinyin',
+  sampheng: 'Middle Chinese · Triple Pinyin',
+  cangjie5: 'Cangjie v5',
+  cangjie5_express: 'Cangjie v5 · Express',
+  stroke: 'Stroke',
+  array30: 'Array 30',
+  wugniu_lopha: 'Shanghainese · Old-school',
+  wugniu: 'Shanghainese · New-school',
+  soutzoe: 'Suzhou Wu',
+  stenotype: 'Stenotype',
+  scj6: 'Quick Cangjie',
+  quick5: 'Quick',
+  jyut6ping3: 'Jyutping (Cantonese)',
+  jyut6ping3_ipa: 'Jyutping · IPA'
+}
+
+function toEnglishSchemaLabel (id: string): string {
+  return SCHEMA_EN_LABEL[id] || id
+}
+
 type Variants = {
   id: string,
   name: string,
@@ -130,12 +169,12 @@ function convertVariants (variants: Variants | undefined) {
   return [
     {
       id: SIMPLIFICATION,
-      name: '简',
+      name: 'Simplified',
       value: true
     },
     {
       id: SIMPLIFICATION,
-      name: '繁',
+      name: 'Traditional',
       value: false
     }
   ]
@@ -176,7 +215,7 @@ for (const schema of schemas as {
 
   function helper (id: string, name: string, group: string | undefined, extended: boolean | undefined, hideComment: HideComment | undefined, variants: Variants | undefined) {
     const item = {
-      label: name,
+      label: toEnglishSchemaLabel(id),
       value: id
     }
     if (group) {
@@ -436,5 +475,6 @@ export {
   changePunctuation,
   changeEmoji,
   selectIME,
-  syncOptions
+  syncOptions,
+  toEnglishSchemaLabel
 }

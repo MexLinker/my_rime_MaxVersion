@@ -2,11 +2,14 @@
 
 One-click helper to set up and run the My RIME local demo without building WASM or schemas.
 
+Now includes starting a lightweight local API server for server-side history storage.
+
 ## What This Script Does
 - Installs project dependencies with `pnpm`.
 - Approves `esbuild` postinstall (required by Vite/Rollup).
 - Downloads the official prebuilt `public/worker.js` from the CDN so the app can run immediately.
 - Optionally sets an HTTP/HTTPS proxy (useful if your network blocks CDN).
+- Starts the local API server (`server/index.ts`) for history snapshots.
 - Starts the Vite dev server and prints the local URL.
 
 ## Requirements
@@ -24,12 +27,16 @@ Options:
 - `--skip-install` skips `pnpm i` if you already installed dependencies.
 - `--refresh-worker` forces redownload of `public/worker.js` from the CDN.
 - `--port PORT` sets dev server port (default `5173`).
+- `--api-port PORT` sets API server port (default `8787`).
+- `--no-api` runs only the frontend dev server (disables local API).
 
 Examples:
 ```sh
 ./script_Max/run_local.sh --proxy 127.0.0.1:7890
 ./script_Max/run_local.sh --skip-install --port 5180
 ./script_Max/run_local.sh --refresh-worker
+./script_Max/run_local.sh --api-port 9000
+./script_Max/run_local.sh --no-api
 ```
 
 ### Windows (PowerShell)
@@ -44,16 +51,21 @@ Options:
 - `-SkipInstall` skips `pnpm i` if dependencies are already installed.
 - `-RefreshWorker` forces redownload of `public/worker.js`.
 - `-Port 5180` sets a custom dev server port.
+- `-ApiPort 9000` sets a custom API server port.
+- `-NoApi` runs only the frontend dev server.
 
 Examples:
 ```powershell
 PowerShell -ExecutionPolicy Bypass -File .\script_Max\run_local.ps1 -Proxy "127.0.0.1:7890"
 PowerShell -ExecutionPolicy Bypass -File .\script_Max\run_local.ps1 -SkipInstall -Port 5180
 PowerShell -ExecutionPolicy Bypass -File .\script_Max\run_local.ps1 -RefreshWorker
+PowerShell -ExecutionPolicy Bypass -File .\script_Max\run_local.ps1 -ApiPort 9000
+PowerShell -ExecutionPolicy Bypass -File .\script_Max\run_local.ps1 -NoApi
 ```
 
 ## Notes
 - This path mirrors what I did: use the CDN-prebuilt worker to avoid a heavy local WASM/toolchain build.
+- The local API server persists input history snapshots to `server/data/history.json` for convenient testing.
 - If you later need an offline build:
   1. Install build tools (`cmake`, `ninja`, `clang-format`) and emscripten.
   2. Run `pnpm run native && pnpm run schema && pnpm run lib && pnpm run wasm`.

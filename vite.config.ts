@@ -84,5 +84,13 @@ export default defineConfig({
     watch: {
       ignored: ['**/boost/**', '**/build/**', '**/dist/**', '**/librime/**', '**/scripts/**', '**/wasm/**'],
     },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8787',
+        changeOrigin: true,
+        // ensure websockets or other future upgrades pass through
+        ws: true
+      }
+    }
   }
 })

@@ -43,3 +43,6 @@ schema-target.json
 target-files.json
 target-version.json
 *.woff2
+
+# server data
+server/data/*.json

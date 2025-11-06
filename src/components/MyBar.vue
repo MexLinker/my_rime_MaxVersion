@@ -19,7 +19,7 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 import * as simpleDb from '../simpleDb'
 
 const showHistory = ref(true)
-const snapshots = ref(simpleDb.getSelectAllSnapshots())
+const snapshots = ref<simpleDb.SelectAllSnapshot[]>([])
 const sortedSnapshots = computed(() => {
   try {
     return [...snapshots.value].sort((a, b) => b.timestamp - a.timestamp)
@@ -36,8 +36,8 @@ function toggleHistory () {
   }
 }
 
-function clearHistory () {
-  simpleDb.clearSelectAllSnapshots()
+async function clearHistory () {
+  await simpleDb.clearSelectAllSnapshots()
   snapshots.value = []
 }
 
@@ -69,19 +69,20 @@ async function copySnapshot (t: string) {
   textarea.focus()
 }
 
-function refreshHistoryList () {
-  snapshots.value = simpleDb.getSelectAllSnapshots()
+async function refreshHistoryList () {
+  try {
+    snapshots.value = await simpleDb.getSelectAllSnapshots()
+  } catch {}
 }
 
 let historyPollTimer: number | undefined
 onMounted(() => {
-  // Poll localStorage for changes to history to auto-refresh UI
+  // Poll server for changes to history to auto-refresh UI
   historyPollTimer = window.setInterval(() => {
-    try {
-      const raw = localStorage.getItem('my_rime_select_all_history')
-      snapshots.value = raw ? JSON.parse(raw) : []
-    } catch {}
-  }, 500)
+    refreshHistoryList()
+  }, 1000)
+  // Initial load
+  refreshHistoryList()
 })
 
 onUnmounted(() => {
