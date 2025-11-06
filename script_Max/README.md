@@ -29,6 +29,7 @@ Options:
 - `--port PORT` sets dev server port (default `5173`).
 - `--api-port PORT` sets API server port (default `8787`).
 - `--no-api` runs only the frontend dev server (disables local API).
+- `--china` uses China npm mirror (npmmirror.com) and prefers China-friendly CDN fallbacks for `worker.js`.
 
 Examples:
 ```sh
@@ -37,6 +38,7 @@ Examples:
 ./script_Max/run_local.sh --refresh-worker
 ./script_Max/run_local.sh --api-port 9000
 ./script_Max/run_local.sh --no-api
+./script_Max/run_local.sh --china
 ```
 
 ### Windows (PowerShell)
@@ -53,6 +55,7 @@ Options:
 - `-Port 5180` sets a custom dev server port.
 - `-ApiPort 9000` sets a custom API server port.
 - `-NoApi` runs only the frontend dev server.
+- `-China` uses China npm mirror (npmmirror.com) and prefers China-friendly CDN fallbacks for `worker.js`.
 
 Examples:
 ```powershell
@@ -61,6 +64,7 @@ PowerShell -ExecutionPolicy Bypass -File .\script_Max\run_local.ps1 -SkipInstall
 PowerShell -ExecutionPolicy Bypass -File .\script_Max\run_local.ps1 -RefreshWorker
 PowerShell -ExecutionPolicy Bypass -File .\script_Max\run_local.ps1 -ApiPort 9000
 PowerShell -ExecutionPolicy Bypass -File .\script_Max\run_local.ps1 -NoApi
+PowerShell -ExecutionPolicy Bypass -File .\script_Max\run_local.ps1 -China
 ```
 
 ## Notes

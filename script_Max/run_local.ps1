@@ -4,7 +4,8 @@ Param(
   [switch]$RefreshWorker,
   [int]$Port = 5173,
   [int]$ApiPort = 8787,
-  [switch]$NoApi
+  [switch]$NoApi,
+  [switch]$China
 )
 
 Set-StrictMode -Version Latest
@@ -35,6 +36,12 @@ if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
   Write-Error "pnpm not found. Install it via: npm i -g pnpm"
 }
 
+# Prefer China npm mirror registry if requested
+if ($China) {
+  Write-Host "==> Using China npm mirror registry (npmmirror.com) for this run" -ForegroundColor Cyan
+  $env:npm_config_registry = "https://registry.npmmirror.com"
+}
+
 if (-not $SkipInstall) {
   Write-Host "==> Installing dependencies with pnpm..." -ForegroundColor Cyan
   pnpm i
@@ -44,14 +51,42 @@ Write-Host "==> Approving esbuild postinstall (required by Vite/Rollup)..." -For
 try { pnpm approve-builds esbuild } catch { Write-Warning "approve-builds failed or not required: $_" }
 
 $WorkerPath = Join-Path $RepoRoot 'public/worker.js'
-$WorkerUrl  = 'https://cdn.jsdelivr.net/npm/@libreservice/my-rime@0.10.9/dist/worker.js'
+$Version    = '0.10.9'
+
+if ($China) {
+  $urls = @(
+    "https://registry.npmmirror.com/@libreservice/my-rime/$Version/files/dist/worker.js",
+    "https://cdn.jsdelivr.net/npm/@libreservice/my-rime@$Version/dist/worker.js",
+    "https://unpkg.com/@libreservice/my-rime@$Version/dist/worker.js"
+  )
+} else {
+  $urls = @(
+    "https://cdn.jsdelivr.net/npm/@libreservice/my-rime@$Version/dist/worker.js",
+    "https://unpkg.com/@libreservice/my-rime@$Version/dist/worker.js",
+    "https://registry.npmmirror.com/@libreservice/my-rime/$Version/files/dist/worker.js"
+  )
+}
 
 if ($RefreshWorker -or -not (Test-Path $WorkerPath)) {
   Write-Host "==> Downloading prebuilt worker.js..." -ForegroundColor Cyan
-  try {
-    Invoke-WebRequest -Uri $WorkerUrl -OutFile $WorkerPath
-  } catch {
-    Write-Error "Failed to download worker.js from CDN. Consider using -Proxy or check your network. $_"
+  $downloaded = $false
+  foreach ($u in $urls) {
+    Write-Host "==> Trying $u" -ForegroundColor DarkGray
+    try {
+      Invoke-WebRequest -UseBasicParsing -TimeoutSec 60 -Uri $u -OutFile $WorkerPath
+      if ((Test-Path $WorkerPath) -and ((Get-Item $WorkerPath).Length -gt 0)) {
+        Write-Host "==> Downloaded worker.js from $u" -ForegroundColor DarkGray
+        $downloaded = $true
+        break
+      } else {
+        Write-Warning "Empty worker.js from $u, trying next source"
+      }
+    } catch {
+      Write-Warning "Failed to download from $u: $_"
+    }
+  }
+  if (-not $downloaded) {
+    Write-Error "Failed to download worker.js from all sources. Consider -Proxy or -China."
   }
 } else {
   Write-Host "==> Using existing $WorkerPath" -ForegroundColor DarkGray
