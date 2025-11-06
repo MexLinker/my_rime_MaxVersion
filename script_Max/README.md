@@ -62,13 +62,3 @@ PowerShell -ExecutionPolicy Bypass -File .\script_Max\run_local.ps1 -RefreshWork
 ## Troubleshooting
 - If the input candidates don’t show, your browser may be unable to download runtime or schema assets from the CDN. Use `--proxy 127.0.0.1:7890` or configure a system/browser proxy, then reload.
 - Check the browser console/network panel for blocked requests to `@libreservice/my-rime` or `@rime-contrib`.
-
-## Approved Builds Step
-The scripts explicitly run the following command to approve `esbuild`’s postinstall step, which downloads platform-specific binaries required by Vite/Rollup:
-
-```sh
-pnpm approve-builds esbuild
-```
-
-- Why: Some environments or pnpm settings block package build scripts. Approving `esbuild` ensures its binary is available so the dev server and bundler work reliably.
-- Where: Both `run_local.sh` and `run_local.ps1` call this and echo the exact command so you can see it in the logs.

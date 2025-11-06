@@ -36,7 +36,6 @@ if (-not $SkipInstall) {
 }
 
 Write-Host "==> Approving esbuild postinstall (required by Vite/Rollup)..." -ForegroundColor Cyan
-Write-Host "    Command: pnpm approve-builds esbuild" -ForegroundColor DarkGray
 try { pnpm approve-builds esbuild } catch { Write-Warning "approve-builds failed or not required: $_" }
 
 $WorkerPath = Join-Path $RepoRoot 'public/worker.js'
