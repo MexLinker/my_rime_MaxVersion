@@ -1,6 +1,8 @@
 # My RIME 梧桐输入法
 ![](https://img.shields.io/github/license/LibreService/my_rime)
 
+> this is edited by max to test the lazygit
+
 Online Chinese IME powered by [RIME](https://github.com/rime/librime).
 
 https://my-rime.vercel.app/
