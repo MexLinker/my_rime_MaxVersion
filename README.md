@@ -3,6 +3,8 @@
 
 > this is edited by max to test the lazygit
 
+> this is second line added, and try commit
+
 Online Chinese IME powered by [RIME](https://github.com/rime/librime).
 
 https://my-rime.vercel.app/
